@@ -62,7 +62,7 @@ In this project a Arduino Uno was used and all instructions will be based on thi
 3. Connect the anodes of the red/green LED to digital pins 10/11 and connect them to ground through 220 ohm resistors.
 4. Connect the RESOLVER-button to 5V via one lead, and the other to a 220 ohm to ground. Connect the junction of the lead and resistor to digital pin 2.
 5. Connect the RESET-button to 5V via one lead, and the other to a 220 ohm to ground. Connect the junction of the lead and resistor to digital pin 4.
-6. TODO: PIEZO instructions
+6. Connect one end of the piezo to ground and the other to digital pin 8.
 
 #### Software
 We use freeRTOS on the arduino board, mainly because it provides an easy way of running multiple tasks and it operates well with AWS-stack.
