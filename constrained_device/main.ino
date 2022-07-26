@@ -119,7 +119,7 @@ void TaskManualOverwrite( void *pvParameters __attribute__((unused)) )  // This 
     {    
       if (overwriteState == LOW) {}
 
-      else {
+      else if (overwriteState == HIGH && alarm_on == 1) {
         Serial.println("FIXED");
         digitalWrite(11, LOW);
 
