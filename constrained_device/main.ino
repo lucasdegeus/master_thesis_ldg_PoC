@@ -10,17 +10,22 @@ SemaphoreHandle_t xSerialSemaphore;
 // define two Tasks for DigitalRead & TiltSwitch
 void TaskManualOverwrite( void *pvParameters );
 void TaskTiltSwitch( void *pvParameters );
+void TaskAlarm (void *pvParameters );
+
 
 // Var
 int alarm_on;
 
 TaskHandle_t xTiltHandle = NULL;
+TaskHandle_t xAlertHandle = NULL;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
+  pinMode(13, OUTPUT);
   pinMode(2, INPUT);
+  
   
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
@@ -54,6 +59,14 @@ void setup() {
     , NULL
     , 2
     , NULL);
+
+  xTaskCreate(
+    TaskAlarm
+    , "Alarm"
+    , 128
+    , NULL
+    , 1
+    , &xAlertHandle);
 
   // Now the Task scheduler, which takes over control of scheduling individual Tasks, is automatically started.
 }
@@ -145,4 +158,34 @@ void TaskManualOverwrite( void *pvParameters __attribute__((unused)) )  // This 
   }
 }
 
-//TODO: SKETCH_JUL20B HIER INVOEREN EN KIJKEN WAAR HET TRAGER WORDT
+
+
+void TaskAlarm( void *pvParameters __attribute__((unused)) )  // This is a Task.
+{
+  
+  // The alarm ranges from tones 0 to 180, using a sinus, start at 0
+  int alarmValue = 0;
+  int toneVal;
+  int sinVal;
+  for (;;) // A Task shall never return or exit.
+  {
+    if (alarm_on == 1) {
+      sinVal = (sin(alarmValue * (3.1412 / 180)));
+      toneVal = 2000 + (int(sinVal * 1000));
+      tone(8, toneVal);
+      alarmValue++;
+
+      if (alarmValue >= 180) {
+        alarmValue = 0;
+      }
+    }
+    else {
+      noTone(8);
+    }
+
+    vTaskDelay(15);  // one tick delay (15ms) in between reads for stability
+  }
+}
+
+
+
