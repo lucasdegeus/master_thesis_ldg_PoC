@@ -1,0 +1,6 @@
+awscrt==0.13.13
+awsiotsdk==1.11.3
+certifi==2022.6.15
+charset-normalizer==2.1.0
+idna==3.3
+pyserial==3.5
