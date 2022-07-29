@@ -1,3 +1,4 @@
+# IMPORTS
 from awscrt import io, mqtt, auth, http
 from awsiot import mqtt_connection_builder
 import time as t
@@ -48,12 +49,16 @@ while True:
         byte_message = serial_monitor.readline()    
         if (byte_message != b'\x0A' or byte_message != ""):
             message = byte_message.decode().strip()
+            # If a message is received from the Arduino, add additional information and forward it to the cloud
             if (message in ["ALERT", "FIXED"]):
-                mqtt_message = create_body(message)
-                mqtt_connection.publish(topic=c.TOPIC, payload=json.dumps(mqtt_message), qos=mqtt.QoS.AT_LEAST_ONCE)
+                mqtt_message = create_body(message) # Add information to message
+                mqtt_connection.publish(topic=c.TOPIC, payload=json.dumps(mqtt_message), qos=mqtt.QoS.AT_LEAST_ONCE) # Publish to MQTT-topic
                 print("Published an " + message)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: # Disconnect MQTT connection when script is exited
         print("Disconneting MQTT")
         disconnect_future = mqtt_connection.disconnect()
         disconnect_future.result()
+
+
+
 

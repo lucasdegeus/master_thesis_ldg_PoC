@@ -7,7 +7,7 @@
 // It will be used to ensure only one Task is accessing this resource at any time.
 SemaphoreHandle_t xSerialSemaphore;
 
-// define two Tasks for DigitalRead & TiltSwitch
+// define Tasks
 void TaskManualOverwrite( void *pvParameters );
 void TaskTiltSwitch( void *pvParameters );
 void TaskAlarm (void *pvParameters );
@@ -15,12 +15,15 @@ void TaskAlarm (void *pvParameters );
 
 // Var
 int alarm_on;
+int alarmValue = 0;
 
+// Handles to Pause/Resume tasks
 TaskHandle_t xTiltHandle = NULL;
 TaskHandle_t xAlertHandle = NULL;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
+  // Set-up INPUT/OUTPUT
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
   pinMode(13, OUTPUT);
@@ -46,27 +49,27 @@ void setup() {
 
   xTaskCreate(
     TaskTiltSwitch
-    ,  "TiltSwitch" // A name just for humans
+    ,  "TiltSwitch" // Name
     ,  128  // Stack size
-    ,  NULL //Parameters for the task
+    ,  NULL //Parameters
     ,  1  // Priority
     ,  &xTiltHandle ); //Task Handle
 
   xTaskCreate(
     TaskManualOverwrite
-    , "ManualOverwrite"
-    , 128
-    , NULL
-    , 2
-    , NULL);
+    , "ManualOverwrite" // Name
+    , 128 // Stack size
+    , NULL //Parameters
+    , 2 // Priority
+    , NULL); //Task Handle
 
   xTaskCreate(
     TaskAlarm
-    , "Alarm"
-    , 128
-    , NULL
-    , 1
-    , &xAlertHandle);
+    , "Alarm" // Name
+    , 128 // Stack size
+    , NULL //Parameters
+    , 1 // Priority
+    , &xAlertHandle); //Task Handle
 
   // Now the Task scheduler, which takes over control of scheduling individual Tasks, is automatically started.
 }
@@ -113,15 +116,18 @@ void TaskManualOverwrite( void *pvParameters __attribute__((unused)) )  // This 
 {
   for (;;)
   {
-    int overwriteState = digitalRead(2);
+    int overwriteState = digitalRead(2); // Read FIXED-button
 
     if ( xSemaphoreTake( xSerialSemaphore, ( TickType_t ) 5 ) == pdTRUE )
     {    
       if (overwriteState == LOW) {}
 
+      // If the FIXED-BUTTON is pressed and the wheelchair is fallen over apply logic
       else if (overwriteState == HIGH && alarm_on == 1) {
         Serial.println("FIXED");
         digitalWrite(11, LOW);
+        alarm_on = 0;
+        noTone(8);
 
         while(digitalRead(4) == LOW) {
           vTaskSuspend(xTiltHandle);
@@ -141,8 +147,6 @@ void TaskManualOverwrite( void *pvParameters __attribute__((unused)) )  // This 
            delay(100);
         }
 
-        // Turn of ALARM_LED
-        alarm_on = 0;
         
         Serial.println("Reset Complete");
         // Resume the Tilt-switch task
@@ -164,23 +168,20 @@ void TaskAlarm( void *pvParameters __attribute__((unused)) )  // This is a Task.
 {
   
   // The alarm ranges from tones 0 to 180, using a sinus, start at 0
-  int alarmValue = 0;
   int toneVal;
-  int sinVal;
+  float sinVal;
   for (;;) // A Task shall never return or exit.
   {
+    // If wheelchair is fallen over, play an alarm
     if (alarm_on == 1) {
-      sinVal = (sin(alarmValue * (3.1412 / 180)));
-      toneVal = 2000 + (int(sinVal * 1000));
+      sinVal = (sin(alarmValue*(3.1412/180)));
+      toneVal = 250 + int(sinVal*200);
       tone(8, toneVal);
-      alarmValue++;
+      alarmValue += 5;
 
       if (alarmValue >= 180) {
         alarmValue = 0;
       }
-    }
-    else {
-      noTone(8);
     }
 
     vTaskDelay(15);  // one tick delay (15ms) in between reads for stability
