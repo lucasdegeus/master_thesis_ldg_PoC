@@ -1,7 +1,7 @@
 
 # Proof-of-concept connected wheelchair
 
-This project demonstrates a connected-wheelchair, capable of detecting whether it is standing upright or fallen over. In case the wheelchair has fallen over, it alerts a medical respondent via email. If the issue is solved, it informs the medical respondent that aid is no longer required.
+This project demonstrates a connected-wheelchair, capable of detecting whether it is standing upright or fallen over. In case the wheelchair has fallen over, it alerts a medical respondent via email. If the issue is solved, it informs the medical respondent that aid is no longer required. 
 
 It functions as a proof-of-concept for the master thesis: An Edge Computing Reference Architecture for Healthcare by Lucas de Geus.
 
@@ -20,6 +20,8 @@ The __constrained edge device__ has a tilt switch that detects whether it has fa
 The __smart device__, in this case a HP-Elitebook laptop, runs a python script and functions as a gateway between the edge device and the cloud. To communicate with the edge device it listens to its serial port and waits for messages. As soon as a message is received, it forwards this messages over MQTT to AWS IoT Core and adds the required authenhication (X.509 certificates).
 
 The __cloud (AWS)__ is subscribed to a MQTT-topic on which the smart device published its messages. If the certificates are verified and correct, AWS IoT Core send the data received to a AWS Lambda function, which in turn sends an email containing the patients ID, location, required aid, and time of accident to a medical respondent.
+
+The functioning of the proof-of-concept is demonstrated in POC_CONNECTED.avi and POC_DISCONNECTED.avi. Showing one set-up where the constrained device is connected to the cloud via a gateway smart device, and a set-up where the constrained device is working standalone, running on a 9V battery and no connection to any other device.
 
 ## Installation
 It is advised to first set up the cloud environment, as the certificates that are generated are required for the other components.
