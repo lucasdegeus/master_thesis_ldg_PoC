@@ -58,7 +58,7 @@ The setup of the constrained edge devices has two parts:
 - Setting up the operating system and software
 
 #### Hardware
-In this project a Arduino Uno was used and all instructions will be based on this board. Make sure the circuit is the same as shown in the cirtcuit-figure (constrained_device/CIRCUIT.PNG). Steps:
+In this project a Arduino Uno was used and all instructions will be based on this board. Make sure the circuit is the same as shown in the cirtcuit-figures (constrained_device/Uploads). Steps:
 1. Connect power and ground from breadboard to the Arduino (on 5v and GND). 
 2. Connect one lead of the tilt switch to 5V and the other to a 10 Kilohm to ground. Connect the junction where the lead and resistor meet to analog pin 1. The tilt-switch is kept in place by an unconnected wire going over it, this can also be replaced by other solution (glue, ductape etc.).
 3. Connect the anodes of the red/green LED to digital pins 10/11 and connect them to ground through 220 ohm resistors.
